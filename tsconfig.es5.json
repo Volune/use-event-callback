@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
+    "lib": ["es6"],
     "outDir": "lib/es5",
     "sourceMap": true,
     "target": "es5"
