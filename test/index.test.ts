@@ -1,6 +1,7 @@
 import useEventCallback from '../src';
 import { createElement } from 'react';
 import TestRenderer from 'react-test-renderer';
+import { renderHook } from "@testing-library/react-hooks";
 
 const Child = () => null;
 
@@ -56,5 +57,30 @@ describe('useEventCallback', () => {
     expect(spy).toHaveBeenCalledTimes(0);
     expect(updatedSpy).toHaveBeenCalledTimes(1);
     expect(updatedSpy).toHaveBeenCalledWith(updatedValue);
+  });
+
+  it("given the hook is re-rendered, it returns the same function value", () => {
+    const hookData = renderHook(() => {
+      function functionThatChangesOnEachRender() {
+        return "value";
+      }
+      return useEventCallback(functionThatChangesOnEachRender);
+    });
+    const initialReturn = hookData.result.current;
+    hookData.rerender();
+    const secondaryReturn = hookData.result.current;
+    expect(initialReturn === secondaryReturn).toBeTruthy();
+  });
+
+  it("given the hook is called before and after re-rendering, the right value is returned", () => {
+    let callCount = 0;
+    function factory() {
+      callCount = callCount + 1;
+      return callCount;
+    }
+    const hookData = renderHook(() => useEventCallback(factory));
+    expect(hookData.result.current()).toEqual(1);
+    hookData.rerender();
+    expect(hookData.result.current()).toEqual(2);
   });
 });
